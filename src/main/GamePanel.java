@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 
 public class GamePanel extends JPanel implements Runnable {
-    public static final int WIDTH = 800;
+    public static final int WIDTH = 1200;
     public static final int HEIGHT = 800;
     final int FPS = 60;
     Thread gameThread;
@@ -23,6 +23,7 @@ public class GamePanel extends JPanel implements Runnable {
     //pieces
     public static ArrayList<Piece> pieces = new ArrayList<>();
     public static ArrayList<Piece> simPieces = new ArrayList<>();
+    public static ArrayList<Point> ValidMoves = new ArrayList<>();
 
     // COLOR OF PIECES;
     public static final int BLACK = 1;
@@ -127,26 +128,42 @@ public class GamePanel extends JPanel implements Runnable {
                == (mouse.x/Board.SQUARE_SIZE) &&
                piece.row == (mouse.y/Board.SQUARE_SIZE)){
                    activePiece = piece;
+
+                   ValidMoves.clear();
+                   for(int col = -1; col<8; ++col){
+                       for(int row = -1; row<8; ++row){
+                           if(activePiece.isWithinBoard(col,row) && activePiece.canMove(col,row)){
+                               ValidMoves.add(new Point(col,row));
+                           }
+                       }
+                   }
                }
            }
          }else{
          //already holding a piece
              simulate();
+
          }
+//         for(Point p:ValidMoves ){
+//             System.out.println(p);
+//         }
      }
 
 
      if(mouse.pressed == false){
          if(activePiece!=null){
              if(validSquare) {
+                 copyPieces(simPieces,pieces); // commit it
                  activePiece.updatePosition();
                  changePlayer();
              }else{
+                 copyPieces(pieces,simPieces); // reverting back
                  activePiece.resetPosition();
                  activePiece = null;
              }
 
          }
+         ValidMoves.clear();
      }
 
     }
@@ -154,6 +171,7 @@ public class GamePanel extends JPanel implements Runnable {
     private void simulate(){
         canMove = false;
         validSquare = false;
+        copyPieces(pieces,simPieces);
      activePiece.x = mouse.x -Board.SQUARE_SIZE/2;
      activePiece.y = mouse.y - Board.SQUARE_SIZE/2;
      activePiece.col = activePiece.getCol(activePiece.x);
@@ -162,6 +180,9 @@ public class GamePanel extends JPanel implements Runnable {
 //     checking if a piece is hovering over a reachable square
      if(activePiece.canMove(activePiece.col, activePiece.row)){
          canMove = true;
+         if(activePiece.hittingPiece != null){
+              simPieces.remove(activePiece.hittingPiece.getIndex());
+         }
          validSquare = true;
      }
     }
@@ -172,11 +193,28 @@ public class GamePanel extends JPanel implements Runnable {
 
         Graphics2D g2 = (Graphics2D)g;
         board.draw(g2);
+
+
+        g2.setColor(Color.orange);
+        g2.setStroke(new BasicStroke(4)); // 4px wide line
+        g2.drawLine(800, 0, 800, HEIGHT);
+        g2.drawLine(1200, 0, 1200, HEIGHT);
+        g2.drawLine(800, 0, 1200, 0);
+        g2.drawLine(800, 800, 1200, 800);
+        g2.setColor(new Color(74, 222, 128, 50)); // Last value is alpha (transparency)
+        g2.fillRect(800, 0, 400, 800);
       for(Piece p : simPieces){
           p.draw(g2);
       }
 
       if(activePiece != null){
+          g2.setColor(Color.darkGray);
+          for (Point p : ValidMoves) {
+              int centerX = p.x * Board.SQUARE_SIZE + Board.SQUARE_SIZE / 2;
+              int centerY = p.y * Board.SQUARE_SIZE + Board.SQUARE_SIZE / 2;
+              int radius = 25;
+              g2.fillOval(centerX - radius / 2, centerY - radius / 2, radius, radius);
+          }
        if(canMove) {
            g2.setColor(Color.white);
            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
@@ -185,6 +223,17 @@ public class GamePanel extends JPanel implements Runnable {
        }
         activePiece.draw(g2);
       }
+
+      g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      g2.setFont(new Font("Book Antiqua",Font.PLAIN,40));
+      g2.setColor(Color.WHITE);
+
+      if(currentColor == WHITE){
+          g2.drawString("WHITE TURN'S ", 860,550);
+      }else{
+          g2.drawString("BLACK TURN'S",860,250);
+      }
+
     }
 
     public void changePlayer(){
@@ -193,6 +242,7 @@ public class GamePanel extends JPanel implements Runnable {
         }else{
             currentColor = WHITE;
         }
+        ValidMoves.clear();
 
         activePiece = null;
     }

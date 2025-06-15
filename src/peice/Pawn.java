@@ -14,6 +14,7 @@ public class Pawn extends Piece {
         }
     }
 
+    @Override
     public boolean canMove(int targetCol, int targetRow){
         if(isWithinBoard(targetCol,targetRow)){
             // checking if targeted square is within kings movement range

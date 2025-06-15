@@ -15,4 +15,15 @@ public class Knight extends Piece{
             image = getImage("/piece/black-knight");
         }
     }
+    public boolean canMove(int targetCol , int targetRow){
+         if(isWithinBoard(targetCol,targetRow)){
+             if(Math.abs(targetCol-prevcol)*Math.abs(targetRow-prevrow) == 2){
+                 if(isValidSquare(targetCol,targetRow)){
+                     return true;
+                 }
+             }
+         }
+
+        return false;
+    }
 }

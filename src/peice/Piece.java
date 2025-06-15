@@ -14,7 +14,7 @@ public class Piece{
     public int x,y;
     public int col, row, prevcol , prevrow;
     public int color;
-    Piece hittingPiece;
+  public  Piece hittingPiece;
 
     public Piece(int color,int col, int row){
       this.color = color;
@@ -55,6 +55,15 @@ public class Piece{
         return (y + Board.HALF_SQUARE_SIZE)/Board.SQUARE_SIZE;
     }
 
+    public int getIndex(){
+        for(int i = 0; i<GamePanel.simPieces.size(); ++i){
+            if(GamePanel.simPieces.get(i) == this){
+                return i;
+            }
+        }
+        return 0;
+    }
+
     public void updatePosition(){
         x = getX(col);
         y = getY(row);
@@ -91,6 +100,103 @@ public class Piece{
         return false;
 
 
+    }
+
+    public boolean isSameSquare(int targetCol, int targetRow){
+      if(targetCol == prevcol && targetRow == prevrow){
+          return true;
+      }
+      return false;
+    }
+
+
+    public boolean pieceIsOnSameLine(int targetCol, int targetRow){
+      for(int col = prevcol-1; col>targetCol; --col){
+          for(Piece piece:GamePanel.simPieces){
+              if((piece.col == col) && (piece.row == targetRow)){
+                    hittingPiece = piece;
+                    return true;
+              }
+          }
+      }
+
+      for(int col = prevcol+1; col<targetCol; ++col){
+          for(Piece piece : GamePanel.simPieces){
+              if((piece.col == col ) && (piece.row ==targetRow)){
+                  hittingPiece = piece;
+                  return true;
+              }
+          }
+      }
+        for(int row = prevrow-1; row>targetRow; --row){
+            for(Piece piece : GamePanel.simPieces){
+                if((piece.row == row ) && (piece.col ==targetCol)){
+                    hittingPiece = piece;
+                    return true;
+                }
+            }
+        }
+        for(int row = prevrow+1; row<targetRow; ++row){
+            for(Piece piece : GamePanel.simPieces){
+                if((piece.col == targetCol ) && (piece.row ==row)){
+                    hittingPiece = piece;
+                    return true;
+                }
+            }
+        }
+      return false;
+
+    }
+    public boolean pieceIsOnDiagnol(int targetCol,int targetRow){
+        if(targetRow<prevrow) {
+            //up left
+            for (int c = prevcol - 1; c > targetCol; --c) {
+                int diff = Math.abs(c - prevcol);
+                for (Piece piece : GamePanel.simPieces) {
+                    if (piece.col == c && piece.row == prevrow - diff) {
+                        hittingPiece = piece;
+                        return true;
+                    }
+                }
+            }
+
+
+            // up right
+            for (int c = prevcol + 1; c < targetCol; ++c) {
+                int diff = Math.abs(c - prevcol);
+                for (Piece piece : GamePanel.simPieces) {
+                    if (piece.col == c && piece.row == prevrow - diff) {
+                        hittingPiece = piece;
+                        return true;
+                    }
+                }
+            }
+
+        }
+        if(targetRow>prevrow){
+         // down left
+            for(int c= prevcol-1; c>targetCol; --c){
+                int diff = Math.abs(c-prevcol);
+                for(Piece piece : GamePanel.simPieces){
+                    if(piece.col == c && piece.row == prevrow+diff){
+                        hittingPiece = piece;
+                        return true;
+                    }
+                }
+            }
+
+            //down right
+            for(int c= prevcol+1; c<targetCol; ++c){
+                int diff = Math.abs(c-prevcol);
+                for(Piece piece : GamePanel.simPieces){
+                    if(piece.col == c && piece.row == prevrow+diff){
+                        hittingPiece = piece;
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public boolean canMove(int targetCol, int targetRow){
