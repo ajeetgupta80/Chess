@@ -75,7 +75,7 @@ public class GamePanel extends JPanel implements Runnable {
       pieces.add(new Rook(BLACK, 0,0));
       pieces.add(new Rook(BLACK, 7,0));
     pieces.add(new Queen(WHITE, 3,7));
-      pieces.add(new King(WHITE, 4,4));
+      pieces.add(new King(WHITE, 4,7));
 
       pieces.add(new King(BLACK, 4,0));
       pieces.add(new Queen(BLACK, 3,0));
@@ -130,8 +130,8 @@ public class GamePanel extends JPanel implements Runnable {
                    activePiece = piece;
 
                    ValidMoves.clear();
-                   for(int col = -1; col<8; ++col){
-                       for(int row = -1; row<8; ++row){
+                   for(int col = 0; col<8; ++col){
+                       for(int row = 0; row<8; ++row){
                            if(activePiece.isWithinBoard(col,row) && activePiece.canMove(col,row)){
                                ValidMoves.add(new Point(col,row));
                            }
